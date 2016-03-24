@@ -9,5 +9,10 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "dotenv": "^2.0.0",
+    "request": "^2.69.0",
+    "twitter": "^1.2.5"
+  }
 }
