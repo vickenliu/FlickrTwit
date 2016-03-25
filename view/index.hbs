@@ -1,16 +1,20 @@
-Welcome to FlickrTwit
-  Whats trending right now on FlickrTwit!
-  <form id="FlickrTwitNewsearch" method="post" action="/">
-            <input type="text" class="hashtagInput" name='tag' value="easter" size="21" maxlength="120">
+<h1>Welcome to FlickrTwit</h1><br>
+  <h2>Whats trending right now on FlickrTwit!</h2>
+<form id="FlickrTwitNewsearch" method="post" action="/">
+            <input type="text" class="hashtagInput" name='tag' value="NZflag" size="21" maxlength="120">
             <input type="submit" value="search" class="FlickrTwitButton">
 </form>
+<br></br>
+<div class="row">
+<div class="col-md-8 col-md-offset-2 form-group catContainer">
 {{#each objs}}
 <div class="col-md-4 form-group catContainer">
-
     <a href='/photos/{{this.id}}'><img src={{this.image}} class='img img-responsive'></a>
-
     {{#each this.tweets}}
     <p>{{this}}</p>
     {{/each}}
 </div>
+
 {{/each }}
+</div>
+</div>

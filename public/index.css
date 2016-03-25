@@ -9,12 +9,22 @@
 
 h1{
 margin-left: 50px;
-background-color: orange;
+color: white;
 }
 
 h2{
 margin-left: 50px;
+color:white;
 }
 body{
 background-color: #222222;
+}
+
+form{
+color: grey;
+margin-left : 50px;}
+
+p{
+  color: white;
+  border:10px blue;
 }
