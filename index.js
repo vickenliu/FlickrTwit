@@ -29,6 +29,8 @@ res.redirect('/photos')
 
 app.post('/', function(req, res) {
   tag=req.body.tag
+  if(tag)
+  tag=grab.trimSpace(tag).toUpperCase();
   fs.writeFileSync('./tag.json',JSON.stringify(tag))
 res.redirect('/photos')
 })
@@ -38,6 +40,7 @@ var count=0;
 app.get('/photos', function(req, res) {
   var imageObjArr=[];
   tag = JSON.parse(fs.readFileSync('./tag.json') )
+  tag=grab.trimSpace(tag).toUpperCase();
   grab.getFlickrPhotos(tag,function(err,images){
     imageObjArr=images.map(function(image){
       return {id:count++, image: image}
@@ -51,6 +54,7 @@ app.get('/photos', function(req, res) {
 app.get('/photos/:id', function(req,res){
    var imageObjArr = JSON.parse(fs.readFileSync('./photos.json') )
    tag = JSON.parse(fs.readFileSync('./tag.json') )
+   tag=grab.trimSpace(tag).toUpperCase();
    imageObjArr = imageObjArr.filter(function(obj){
     return obj.id == req.params.id;
    })
@@ -68,6 +72,7 @@ app.get('/photos/:id', function(req,res){
 app.get('/:tag', function(req, res) {
   var imageObjArr=[];
   tag=req.params.tag
+  tag=grab.trimSpace(tag).toUpperCase();
   grab.getFlickrPhotos(tag,function(err,images){
     imageObjArr=images.map(function(image){
       return {id:count++, image: image}

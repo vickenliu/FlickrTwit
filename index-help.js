@@ -3,7 +3,16 @@ var dotenv = require('dotenv')
 var request = require('request')
 
 dotenv.load()
+function trimSpace(str){
+  var arr=str.split('');
+  var result=arr.map(function(a){
+    if(a!==' '){
+      return a;
+    }
 
+  })
+  return result.join('');
+}
 function getFlickrPhotos( tag, callback ){
   var query = [
     'https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=',
@@ -42,5 +51,6 @@ function getTweets (tag , callback) {
 
 exports = module.exports = {
   getTweets: getTweets,
-  getFlickrPhotos: getFlickrPhotos
+  getFlickrPhotos: getFlickrPhotos,
+  trimSpace: trimSpace
 }
