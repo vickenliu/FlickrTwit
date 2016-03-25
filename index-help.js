@@ -8,7 +8,7 @@ function getFlickrPhotos( tag, callback ){
   var query = [
     'https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=',
     process.env.FLICKR_API_KEY,
-    '&tags=',tag,'&per_page=10&format=json&nojsoncallback=1'
+    '&tags=',tag,'&per_page=9&format=json&nojsoncallback=1'
   ].join('')
   request(query, function (error, response, body) {
     if (error) {

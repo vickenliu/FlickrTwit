@@ -27,6 +27,11 @@ app.get('/', function(req, res) {
 res.redirect('/photos')
 })
 
+app.post('/', function(req, res) {
+  tag=req.body.tag
+  fs.writeFileSync('./tag.json',JSON.stringify(tag))
+res.redirect('/photos')
+})
 
 
 var count=0;
@@ -38,7 +43,7 @@ app.get('/photos', function(req, res) {
       return {id:count++, image: image}
     })
     fs.writeFileSync('./photos.json',JSON.stringify(imageObjArr))
-    res.render('touch',{objs:imageObjArr});
+    res.render('index',{objs:imageObjArr});
   })
 
 })
@@ -69,7 +74,7 @@ app.get('/:tag', function(req, res) {
     })
     fs.writeFileSync('./tag.json',JSON.stringify(tag))
     fs.writeFileSync('./photos.json',JSON.stringify(imageObjArr))
-    res.render('touch',{objs:imageObjArr});
+    res.render('index',{objs:imageObjArr});
   })
 
 })
