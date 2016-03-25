@@ -1,0 +1,10 @@
+{{#each objs}}
+<div class="col-md-4 form-group catContainer">
+
+    <a href='/photos/{{this.id}}'><img src={{this.image}} class='img img-responsive'></a>
+
+    {{#each this.tweets}}
+    <p>{{this}}</p>
+    {{/each}}
+</div>
+{{/each }}

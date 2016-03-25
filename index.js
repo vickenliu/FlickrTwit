@@ -1,46 +1,167 @@
-var twitter = require('twitter')
-var dotenv = require('dotenv')
-var request = require('request')
+#!/usr/bin/env node
 
-dotenv.load()
 
-function getFlickrPhotos( tag, callback ){
-  var query = [
-    'https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=',
-    process.env.FLICKR_API_KEY,
-    '&tags=',tag,'&per_page=10&format=json&nojsoncallback=1'
-  ].join('')
-  request(query, function (error, response, body) {
-    if (error) {
-      callback(error)
-      return
-    }
+/**
+ * Set up server for app
+ */
 
-    var photos = JSON.parse(body).photos.photo, links = []
-    links = photos.map(function(photo){
-    return 'https://farm' + photo.farm + '.staticflickr.com/' + photo.server + '/' + photo.id + '_' + photo.secret + '.jpg'
-    })
-    callback(null, links)
-  })
-}
+var express = require('express');
+var path = require('path');
+var bodyParser = require('body-parser');
+var grab=require('./index-help')
+var fs=require('fs')
+var app = express();
 
-var client = new twitter({
-  consumer_key: process.env.CONSUMER_KEY,
-  consumer_secret: process.env.CONSUMER_SECRET,
-  access_token_key: process.env.ACCESS_TOKEN_KEY,
-  access_token_secret: process.env.ACCESS_TOKEN_SECRET
+// view engine setup
+app.set('views', path.join(__dirname, 'view'));
+app.set('view engine', 'hbs');
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+var placeHolder = ""
+var tag='NZFLAG';
+app.get('/', function(req, res) {
+
+res.redirect('/photos')
 })
 
-function getTweets (tag , callback) {
-  client.get('search/tweets',{q:'#'+tag, lang:'en'}, function(err, tweets, response){
-    if(err){ callback(err);  return }
-    //console.log(tweets.statuses[0])
-    callback(null, tweets.statuses)
+
+
+var count=0;
+app.get('/photos', function(req, res) {
+  var imageObjArr=[];
+  tag = JSON.parse(fs.readFileSync('./tag.json') )
+  grab.getFlickrPhotos(tag,function(err,images){
+    imageObjArr=images.map(function(image){
+      return {id:count++, image: image}
+    })
+    fs.writeFileSync('./photos.json',JSON.stringify(imageObjArr))
+    res.render('touch',{objs:imageObjArr});
   })
-}
+
+})
+
+app.get('/photos/:id', function(req,res){
+   var imageObjArr = JSON.parse(fs.readFileSync('./photos.json') )
+   tag = JSON.parse(fs.readFileSync('./tag.json') )
+   imageObjArr = imageObjArr.filter(function(obj){
+    return obj.id == req.params.id;
+   })
+     grab.getTweets(tag,function(err,tweets){
+      var texts=tweets.map(function(tweetObj){
+        return tweetObj.text;
+      })
+      imageObjArr[0].tweets=[texts[0],texts[2],texts[4]];
+      console.log(imageObjArr)
+      res.render('touch',{objs:imageObjArr});
+     })
+
+})
+
+app.get('/:tag', function(req, res) {
+  var imageObjArr=[];
+  tag=req.params.tag
+  grab.getFlickrPhotos(tag,function(err,images){
+    imageObjArr=images.map(function(image){
+      return {id:count++, image: image}
+    })
+    fs.writeFileSync('./tag.json',JSON.stringify(tag))
+    fs.writeFileSync('./photos.json',JSON.stringify(imageObjArr))
+    res.render('touch',{objs:imageObjArr});
+  })
+
+})
 
 
-exports = module.exports = {
-  getTweets: getTweets,
-  getFlickrPhotos: getFlickrPhotos
+
+
+
+/**
+ * Module dependencies.
+ */
+
+var http = require('http');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '5000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
 }
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+}
+
+module.exports = app;
