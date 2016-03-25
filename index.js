@@ -23,13 +23,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 var placeHolder = ""
 var tag='NZFLAG';
 app.get('/', function(req, res) {
-
-res.redirect('/photos')
+  res.redirect('/photos')
 })
 
 app.post('/', function(req, res) {
   tag=req.body.tag
-  if(tag)
   tag=grab.trimSpace(tag).toUpperCase();
   fs.writeFileSync('./tag.json',JSON.stringify(tag))
 res.redirect('/photos')
@@ -63,7 +61,7 @@ app.get('/photos/:id', function(req,res){
         return tweetObj.text;
       })
       imageObjArr[0].tweets=[texts[0],texts[2],texts[4]];
-      console.log(imageObjArr)
+
       res.render('touch',{objs:imageObjArr});
      })
 
@@ -111,7 +109,9 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+server.listen(port,function(){
+  console.log('the server is running ,listening to port 5000')
+});
 server.on('error', onError);
 server.on('listening', onListening);
 
