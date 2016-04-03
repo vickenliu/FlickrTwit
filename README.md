@@ -2,7 +2,7 @@
 
 ### First group project in EDA
 
-### Feature
+### Main Feature
 
 1.user can type in any words to grab photos which are hashtaged on flickr.
 
