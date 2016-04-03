@@ -18,28 +18,28 @@ app.set('view engine', 'hbs');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 var placeHolder = ""
-var tag='NZFLAG';
+var hashtag='NZFLAG';
 app.get('/', function(req, res) {
   res.redirect('/photos')
 })
 
 app.post('/', function(req, res) {
-  tag=req.body.tag
-  tag=grab.trimSpace(tag).toUpperCase();
-  fs.writeFileSync('./tag.json',JSON.stringify(tag))
-res.redirect('/photos')
+  hashtag=req.body.hashtag
+  hashtag=grab.trimSpace(hashtag).toUpperCase();
+  res.redirect('/photos')
+  fs.writeFile('./hashtag.json',JSON.stringify(hashtag))
+  
 })
 
 
 var count=0;
 app.get('/photos', function(req, res) {
   var imageObjArr=[];
-  tag = JSON.parse(fs.readFileSync('./tag.json') )
-  tag=grab.trimSpace(tag).toUpperCase();
-  grab.getFlickrPhotos(tag,function(err,images){
+  hashtag = JSON.parse(fs.readFileSync('./hashtag.json') )
+  grab.getFlickrPhotos(hashtag,function(err,images){
     imageObjArr=images.map(function(image){
       return {id:count++, image: image}
     })
@@ -51,31 +51,31 @@ app.get('/photos', function(req, res) {
 
 app.get('/photos/:id', function(req,res){
    var imageObjArr = JSON.parse(fs.readFileSync('./photos.json') )
-   tag = JSON.parse(fs.readFileSync('./tag.json') )
-   tag=grab.trimSpace(tag).toUpperCase();
+   hashtag = JSON.parse(fs.readFileSync('./hashtag.json') )
    imageObjArr = imageObjArr.filter(function(obj){
     return obj.id == req.params.id;
    })
-     grab.getTweets(tag,function(err,tweets){
+     grab.getTweets(hashtag,function(err,tweets){
       var texts=tweets.map(function(tweetObj){
         return tweetObj.text;
       })
-      imageObjArr[0].tweets=[texts[0],texts[2],texts[4]];
+      if(texts)
+      	imageObjArr[0].tweets=texts;
 
       res.render('touch',{objs:imageObjArr});
      })
 
 })
 
-app.get('/:tag', function(req, res) {
+app.get('/hashtag/:hashtag', function(req, res) {
   var imageObjArr=[];
-  tag=req.params.tag
-  tag=grab.trimSpace(tag).toUpperCase();
-  grab.getFlickrPhotos(tag,function(err,images){
+  hashtag=req.params.hashtag
+  hashtag=grab.trimSpace(hashtag).toUpperCase();
+  grab.getFlickrPhotos(hashtag,function(err,images){
     imageObjArr=images.map(function(image){
       return {id:count++, image: image}
     })
-    fs.writeFileSync('./tag.json',JSON.stringify(tag))
+    fs.writeFileSync('./hashtag.json',JSON.stringify(hashtag))
     fs.writeFileSync('./photos.json',JSON.stringify(imageObjArr))
     res.render('index',{objs:imageObjArr});
   })

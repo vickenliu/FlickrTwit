@@ -41,7 +41,7 @@ var client = new twitter({
 })
 
 function getTweets (tag , callback) {
-  client.get('search/tweets',{q:'#'+tag, lang:'en'}, function(err, tweets, response){
+  client.get('search/tweets',{q:'#'+tag, lang:'en',count:3}, function(err, tweets, response){
     if(err){ callback(err);  return }
     //console.log(tweets.statuses[0])
     callback(null, tweets.statuses)
